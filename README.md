@@ -44,7 +44,7 @@ Note that the default running level in your program or service might widely vary
 
 Most logging library I cited in the 1st commandment allow to specify a logging category. This category allows to classify the log message, and will ultimately, based on the logging framework configuration, be logged in a distinct way or not logged at all.
 
-Most of the time java developers use the fully qualified class name where the log statement appears as the category. This is a scheme that works relatively fine if your program respects the [simple responsibility principle](https://en.wikipedia.org/wiki/Single_responsibility_principle).
+Most of the time java developers use the fully qualified class name where the log statement appears as the category. This is a scheme that works relatively fine if your program respects the [single responsibility principle](https://en.wikipedia.org/wiki/Single_responsibility_principle).
 
 Log categories in Java logging libraries are hierarchical, so for instance logging with category `com.daysofwonder.ranking.ELORankingComputation` would match the top level category `com.daysofwonder.ranking`. This would allow the ops engineer to setup a logging configuration that works for all the ranking subsystem by just specifying configuration for this category. But it could at the same time, produce logging configuration for child categories if needed.
 
@@ -66,17 +66,59 @@ Also, do not log message that depends on previous messages content. The reason i
 
 ## 5) Thy log shalt be written in English
 
-
+ 
 
 ## 6) Thy shalt log with context
 
+The following are the worst kinns of log messages:
+
+```
+Transaction failed
+---
+User operation succeeded
+---
+java.lang.IndexOutOfBoundsException
+```
+
+
+
+Without proper context, those messages are only noise, they dont add value and consume space that could have been useful during troubleshooting. Messages are more valuable when accompanied with context.
+
 ## 7) Thou shalt log in machine parseable format
+
+
 
 ## 8) Thou shalt not log too much or too little
 
 http://www.lenholgate.com/blog/2003/05/death-by-debug-trace.html
 
+That might sound stupid, but there is a right balance for the amount of log.
+
+Too much log and it will really become hard to get any value from it. When manually browsing such logs, there is too much clutter which when trying to troubleshoot a production issue at 3AM is not a good thing.
+
+Too little log and you risk to not be able to troubleshoot problems: troubleshooting is like solving a difficult puzzle, you need to get enough material for this.
+
+Unfortunately, there is no magic rule when coding to know what to log. It is thus very important to strictly respect the 1st and 2nd commandments so that when the application will be live it will be easier to increase or decrease the log verbosity.
+
+One way to overcome this issue is during development to log as much as possible (do not confuse this with logging added to debug the program). Then when the application enters production, perform an analysis of the produced logs and reduce or increase the logging statement accordingly to the problems found. Especially during troubleshooting, note the part of the application you wished you could have more context or logging, and make sure to add those log statements to the next version (if possible at the same time you fix the issue to keep the problem fresh in memory). Of course, that requires an amount of communication between ops and devs.
+
+This can be a complex task, but I would recommend refactoring logging statements as much as you refactor the code. The idea would be to have a tight feedback loop between the production logs and the modification of such logging statement. It’s even more efficient if your organization has a continuous delivery process in place, as the refactoring can be constant.
+
+Logging statements are some kind of code metadata, at the same level of code comments. It’s really important to keep the logging statements in sync with the code. There’s nothing worst when troubleshooting issues to get irrelevant messages that have no relation to the code processed.
+
 ## 9) Thou shalt think to the reader
+
+Why add logging to an application?
+
+The only answer is that someone will have to read it one day or later (or what is the point?). More important it is interesting to think about who will read those lines. Depending on the person you think will read the log messages you’re about to write, the log message content, context, category and level will be quite different.
+
+Those persons can be:
+
+- an end-user trying to troubleshoot herself a problem (imagine a client or desktop program)
+- a system-administrator or operation engineer troubleshooting a production issue
+- a developer either for debugging during development or solving a production issue
+
+Of course, the developer knows the internals of the program, thus her log messages can be much more complex than if the log message is to be addressed to an end-user. So adapt your language to the intended target audience, you can even dedicate separate categories for this.
 
 ## 10) Thou shalt not log only for troubleshooting
 
@@ -102,7 +144,7 @@ As the log messages are for a different audience, log messages will be used for 
 
 
 
-
+---
 
 ## Sources
 
